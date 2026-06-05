@@ -5,10 +5,11 @@ reference/
 *.fastq.gz
 reference/gencode.v45_human_index/
 
-# Quarto build artifacts
+# Quarto build artifacts (only the root-level intermediates; docs/ is the
+# published site and MUST be committed, including its *_files/ figure dirs).
 /.quarto/
-*_files/
-site_libs/
+/*_files/
+/site_libs/
 
 # R
 .Rproj.user/
