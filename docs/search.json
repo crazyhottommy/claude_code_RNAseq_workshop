@@ -90,7 +90,7 @@
     "href": "06-wrap-up.html#use-it-on-your-data",
     "title": "6 · Wrap-up",
     "section": "Use it on your data",
-    "text": "Use it on your data\nThe same flow generalizes. To adapt this repo:\n\nPut your quant.sf files under data/salmon/&lt;sample&gt;/.\nEdit data/samples.csv with your samples and conditions.\nRegenerate tx2gene.csv / gene_name_map.csv for your organism with scripts/make_tx2gene.R (point it at the matching GTF).\nOpen Claude Code and start with: “Adapt the analysis in scripts/analysis.R to my samples in data/samples.csv and my contrast.”\n\n\n\n\n\n\n\nTipThe whole thing, scripted\n\n\n\nscripts/analysis.R is the complete reference solution — run Rscript scripts/analysis.R to reproduce every result on this site in one shot.",
+    "text": "Use it on your data\nThe same flow generalizes. To adapt this repo:\n\nPut your quant.sf files under data/salmon/&lt;sample&gt;/.\nEdit data/samples.csv with your samples and conditions.\nRegenerate tx2gene.csv / gene_name_map.csv for your organism with scripts/make_tx2gene.R (point it at the matching GTF).\nOpen Claude Code and start with: “Adapt the analysis in scripts/analysis.R to my samples in data/samples.csv and my contrast.”\n\n\n\n\n\n\n\nThe whole thing, scripted\n\n\n\nscripts/analysis.R is the complete reference solution — run Rscript scripts/analysis.R to reproduce every result on this site in one shot.",
     "crumbs": [
       "Walkthrough",
       "6 · Wrap-up"
@@ -233,7 +233,7 @@
     "href": "02-preprocessing.html#step-4-build-the-transcriptgene-map",
     "title": "2 · Preprocessing",
     "section": "Step 4 — Build the transcript→gene map",
-    "text": "Step 4 — Build the transcript→gene map\nscripts/make_tx2gene.R parses the GENCODE GTF with rtracklayer and writes data/tx2gene.csv and data/gene_name_map.csv:\ngtf &lt;- rtracklayer::import(\"reference/gencode.v45.annotation.gtf.gz\")\ntx  &lt;- subset(as.data.frame(gtf), type == \"transcript\")\n# transcript_id -&gt; gene_id  and  gene_id -&gt; gene_name\n\n\n\n\n\n\nTipReproduce the whole thing later\n\n\n\nconda env create -f environment.yml, then run scripts/01 → 02 → 03 → make_tx2gene.R. Everything you need is in the repo.\n\n\n→ Now the fun part: load the data and find differentially expressed genes — 3 · Import & DESeq2.",
+    "text": "Step 4 — Build the transcript→gene map\nscripts/make_tx2gene.R parses the GENCODE GTF with rtracklayer and writes data/tx2gene.csv and data/gene_name_map.csv:\ngtf &lt;- rtracklayer::import(\"reference/gencode.v45.annotation.gtf.gz\")\ntx  &lt;- subset(as.data.frame(gtf), type == \"transcript\")\n# transcript_id -&gt; gene_id  and  gene_id -&gt; gene_name\n\n\n\n\n\n\nReproduce the whole thing later\n\n\n\nconda env create -f environment.yml, then run scripts/01 → 02 → 03 → make_tx2gene.R. Everything you need is in the repo.\n\n\n→ Now the fun part: load the data and find differentially expressed genes — 3 · Import & DESeq2.",
     "crumbs": [
       "Walkthrough",
       "2 · Preprocessing"
@@ -277,7 +277,7 @@
     "href": "01-the-data.html#why-we-need-tx2gene",
     "title": "1 · The data",
     "section": "Why we need tx2gene",
-    "text": "Why we need tx2gene\nSalmon quantifies transcripts, but differential expression is usually done per gene. The map from transcript to gene comes from the GENCODE annotation and lives in data/tx2gene.csv:\ntranscript_id        gene_id\nENST00000456328.2    ENSG00000290825.2\nENST00000450305.2    ENSG00000223972.6\n...\ntximport uses this to sum transcript-level estimates into gene-level counts in the next step. The companion data/gene_name_map.csv turns the cryptic ENSG… IDs into readable symbols at the end.\n\n\n\n\n\n\nTipThe Claude Code habit\n\n\n\nNotice the pattern: ask it to read and explain before you ask it to compute. You catch misunderstandings about the data early — when they’re cheap to fix.\n\n\n→ Next: how those quant.sf files were produced — 2 · Preprocessing.",
+    "text": "Why we need tx2gene\nSalmon quantifies transcripts, but differential expression is usually done per gene. The map from transcript to gene comes from the GENCODE annotation and lives in data/tx2gene.csv:\ntranscript_id        gene_id\nENST00000456328.2    ENSG00000290825.2\nENST00000450305.2    ENSG00000223972.6\n...\ntximport uses this to sum transcript-level estimates into gene-level counts in the next step. The companion data/gene_name_map.csv turns the cryptic ENSG… IDs into readable symbols at the end.\n\n\n\n\n\n\nThe Claude Code habit\n\n\n\nNotice the pattern: ask it to read and explain before you ask it to compute. You catch misunderstandings about the data early — when they’re cheap to fix.\n\n\n→ Next: how those quant.sf files were produced — 2 · Preprocessing.",
     "crumbs": [
       "Walkthrough",
       "1 · The data"
