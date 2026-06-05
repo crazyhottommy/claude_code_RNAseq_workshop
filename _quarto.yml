@@ -3,8 +3,8 @@ project:
   output-dir: docs
   render:
     - "*.qmd"          # don't render CLAUDE.md / README.md as site pages
-  post-render:
-    - bash -c 'touch docs/.nojekyll'   # keep GitHub Pages from running Jekyll
+  resources:
+    - .nojekyll        # copied into docs/ so GitHub Pages skips Jekyll
 
 execute:
   freeze: auto      # cache executed R outputs in _freeze/ so publishing never re-runs R
