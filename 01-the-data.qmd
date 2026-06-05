@@ -1,0 +1,66 @@
+---
+title: "1 · The data"
+---
+
+Before any analysis, understand what you're working with. This is exactly where an AI assistant shines: let Claude Code **read and summarize** the files for you.
+
+## The experiment
+
+[GSE197576](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE197576) is a human bulk-RNAseq study. We use four single-end samples:
+
+| Sample | Condition | SRA experiment |
+|--------|-----------|----------------|
+| Normoxia_sgCTRL_1 | normoxia | SRX14311105 |
+| Normoxia_sgCTRL_2 | normoxia | SRX14311106 |
+| Hypoxia_sgCTRL_1  | hypoxia  | SRX14311111 |
+| Hypoxia_sgCTRL_2  | hypoxia  | SRX14311112 |
+
+**Hypoxia** = low oxygen. Cells respond by stabilizing the HIF transcription factors, which switch on a well-known program of genes (*VEGFA*, *CA9*, *BNIP3*, *SLC2A1/GLUT1*, *PGK1*…). If our analysis is right, those should be among the top up-regulated genes — a free biological positive control.
+
+## Explore it with Claude Code
+
+::: {.claude-prompt}
+[Try this prompt]{.prompt-label}
+
+[What is in `data/salmon/Normoxia_sgCTRL_1/quant.sf`? Show me the first few rows and explain each column.]{.prompt-text}
+:::
+
+A salmon `quant.sf` is a plain TSV with one row per transcript:
+
+```
+Name                Length  EffectiveLength  TPM       NumReads
+ENST00000456328.2   1657    1465.83          0.412331  12.000
+ENST00000450305.2   632     441.30           0.000000  0.000
+...
+```
+
+- **Name** — the transcript ID (versioned GENCODE ENST).
+- **Length / EffectiveLength** — transcript length and the length adjusted for the fragment-length distribution.
+- **TPM** — transcripts per million (normalized abundance).
+- **NumReads** — estimated reads assigned to the transcript (this is what DESeq2 ultimately uses, after summing to gene level).
+
+::: {.claude-prompt}
+[Try this prompt]{.prompt-label}
+
+[Read `data/samples.csv` and confirm how many samples are in each condition. Also tell me how many transcripts are quantified in each `quant.sf` file.]{.prompt-text}
+:::
+
+## Why we need `tx2gene`
+
+Salmon quantifies **transcripts**, but differential expression is usually done per **gene**. The map from transcript to gene comes from the GENCODE annotation and lives in `data/tx2gene.csv`:
+
+```
+transcript_id        gene_id
+ENST00000456328.2    ENSG00000290825.2
+ENST00000450305.2    ENSG00000223972.6
+...
+```
+
+`tximport` uses this to **sum transcript-level estimates into gene-level counts** in the next step. The companion `data/gene_name_map.csv` turns the cryptic `ENSG…` IDs into readable symbols at the end.
+
+::: {.callout-tip}
+## The Claude Code habit
+Notice the pattern: *ask it to read and explain before you ask it to compute.* You catch misunderstandings about the data early — when they're cheap to fix.
+:::
+
+→ Next: how those `quant.sf` files were produced — **[2 · Preprocessing](02-preprocessing.qmd)**.

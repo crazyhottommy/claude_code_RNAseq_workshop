@@ -1,0 +1,133 @@
+---
+title: "3 · Import & DESeq2"
+---
+
+This is the heart of the workshop: from salmon files to a ranked list of differentially expressed genes. Drive each step by prompting Claude Code — the code below is what it should produce, and the output is real, run on this repo's data.
+
+```{r setup}
+#| include: false
+knitr::opts_chunk$set(echo = TRUE, collapse = TRUE)
+```
+
+## Load the salmon output with tximport
+
+::: {.claude-prompt}
+[Try this prompt]{.prompt-label}
+
+[Read `data/samples.csv`. Then load the four salmon `quant.sf` files with tximport, summarizing transcripts to genes using `data/tx2gene.csv`. Show me the dimensions of the gene-level count matrix.]{.prompt-text}
+:::
+
+```{r tximport}
+library(tximport)
+library(readr)
+library(dplyr)
+
+samples <- read_csv("data/samples.csv", show_col_types = FALSE)
+samples$condition <- factor(samples$condition, levels = c("normoxia", "hypoxia"))
+
+files <- file.path("data", "salmon", samples$sample, "quant.sf")
+names(files) <- samples$sample
+
+tx2gene <- read_csv("data/tx2gene.csv", show_col_types = FALSE)
+txi <- tximport(files, type = "salmon", tx2gene = tx2gene)
+
+dim(txi$counts)            # genes x samples
+head(round(txi$counts), 3)
+```
+
+`tximport` returned three matrices — `counts`, `abundance` (TPM) and `length`. DESeq2 uses all three: the per-gene average transcript length becomes an offset that corrects for differential transcript usage between samples.
+
+## Build the DESeq2 dataset
+
+::: {.claude-prompt}
+[Try this prompt]{.prompt-label}
+
+[Create a DESeq2 dataset from the tximport object with design `~ condition`, and set `normoxia` as the reference level so fold changes read as hypoxia-vs-normoxia.]{.prompt-text}
+:::
+
+```{r dds}
+library(DESeq2)
+
+dds <- DESeqDataSetFromTximport(txi, colData = samples, design = ~ condition)
+dds$condition <- relevel(dds$condition, ref = "normoxia")
+dds
+```
+
+## Filter low-count genes
+
+Genes with almost no reads add noise and drag down multiple-testing power. A light filter is standard:
+
+::: {.claude-prompt}
+[Try this prompt]{.prompt-label}
+
+[Remove genes whose total count across all samples is 10 or fewer, and tell me how many genes remain.]{.prompt-text}
+:::
+
+```{r filter}
+keep <- rowSums(counts(dds)) > 10
+dds <- dds[keep, ]
+nrow(dds)
+```
+
+## Run differential expression
+
+::: {.claude-prompt}
+[Try this prompt]{.prompt-label}
+
+[Run DESeq2 and extract results for the contrast hypoxia vs normoxia. Summarize how many genes are up and down at padj < 0.05.]{.prompt-text}
+:::
+
+```{r deseq}
+dds <- DESeq(dds)
+res <- results(dds, contrast = c("condition", "hypoxia", "normoxia"))
+summary(res)
+```
+
+`DESeq()` does three things in one call: estimates size factors (library-size normalization), estimates per-gene dispersion, and fits a negative-binomial GLM with a Wald test.
+
+## Annotate with gene symbols
+
+The results are indexed by `ENSG…` IDs. Join the symbol map so the table is human-readable:
+
+::: {.claude-prompt}
+[Try this prompt]{.prompt-label}
+
+[Convert the results to a data frame, add gene symbols from `data/gene_name_map.csv`, sort by adjusted p-value, and show the top 15 genes.]{.prompt-text}
+:::
+
+```{r annotate}
+library(tibble)
+
+gene_name_map <- read_csv("data/gene_name_map.csv", show_col_types = FALSE)
+
+res_df <- res |>
+  as.data.frame() |>
+  rownames_to_column("gene_id") |>
+  left_join(gene_name_map, by = "gene_id") |>
+  arrange(padj)
+
+res_df |>
+  select(gene_name, gene_id, baseMean, log2FoldChange, padj) |>
+  head(15)
+```
+
+```{r sanity}
+# Biological sanity check: are canonical hypoxia genes up-regulated?
+hif <- c("VEGFA", "CA9", "BNIP3", "SLC2A1", "PGK1", "LDHA", "PDK1")
+res_df |>
+  filter(gene_name %in% hif) |>
+  select(gene_name, log2FoldChange, padj) |>
+  arrange(padj)
+```
+
+If the hypoxia program is up, the analysis is behaving. 🎯
+
+```{r save}
+#| include: false
+# Persist for the visualization & enrichment pages.
+dir.create("results", showWarnings = FALSE)
+saveRDS(dds, "results/dds.rds")
+write_csv(res_df, "results/de_hypoxia_vs_normoxia.csv")
+```
+
+→ Let's make this visual — **[4 · Visualization](04-visualization.qmd)**.

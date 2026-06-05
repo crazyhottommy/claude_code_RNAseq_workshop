@@ -1,0 +1,61 @@
+---
+title: "6 · Wrap-up"
+---
+
+In one hour you took a real public dataset from salmon quantifications to a finished, biologically sensible analysis — and you did it by **describing what you wanted**, then reading and steering the code Claude Code wrote.
+
+## What we did
+
+```
+quant.sf ─► tximport ─► DESeq2 ─► results ─► PCA / volcano / heatmap ─► GO enrichment
+```
+
+- **Understood the data first** — let Claude Code read and explain before computing.
+- **Summarized to genes** with tximport + `tx2gene`.
+- **Modeled** with DESeq2 (`~ condition`, hypoxia vs normoxia).
+- **Sanity-checked** against known hypoxia genes (*VEGFA, CA9, BNIP3…*).
+- **Visualized and interpreted** the differentially expressed genes.
+
+## The prompt cheat sheet
+
+| Goal | Prompt seed |
+|------|-------------|
+| Understand inputs | *"Read CLAUDE.md and `data/`, explain the dataset and the planned analysis."* |
+| Import | *"Load the salmon `quant.sf` files with tximport, summarize to genes with `tx2gene.csv`."* |
+| Model | *"Build a DESeq2 dataset, design `~ condition`, reference level normoxia."* |
+| Test | *"Run DESeq2, get results for hypoxia vs normoxia, summarize up/down at padj < 0.05."* |
+| Annotate | *"Add gene symbols from `gene_name_map.csv` and sort by padj."* |
+| Visualize | *"Make a PCA, volcano, and heatmap of the top DE genes."* |
+| Interpret | *"Run GO enrichment on the up-regulated genes and plot the top terms."* |
+
+## Working *with* the AI, not just *through* it
+
+A few habits that made this reliable:
+
+1. **Read before you run.** Ask for an explanation of the data and a plan before generating analysis code.
+2. **Keep a `CLAUDE.md`.** It anchors every session with the file layout, conventions, and goal — so you don't re-explain each time.
+3. **Build in sanity checks.** A known positive control (the hypoxia genes here) instantly tells you whether the pipeline is correct.
+4. **Review the code.** Claude Code shows its work; skim the DESeq2 call, the contrast, the filtering. You stay the analyst.
+5. **Iterate in small steps.** One question per prompt is easier to verify than "do the whole analysis."
+
+## Use it on *your* data
+
+The same flow generalizes. To adapt this repo:
+
+1. Put your `quant.sf` files under `data/salmon/<sample>/`.
+2. Edit `data/samples.csv` with your samples and conditions.
+3. Regenerate `tx2gene.csv` / `gene_name_map.csv` for your organism with `scripts/make_tx2gene.R` (point it at the matching GTF).
+4. Open Claude Code and start with: *"Adapt the analysis in `scripts/analysis.R` to my samples in `data/samples.csv` and my contrast."*
+
+::: {.callout-tip}
+## The whole thing, scripted
+`scripts/analysis.R` is the complete reference solution — run `Rscript scripts/analysis.R` to reproduce every result on this site in one shot.
+:::
+
+## Resources
+
+- Original blog posts by Tommy Tang: [downstream with tximport + DESeq2](https://divingintogeneticsandgenomics.com/post/downstream-of-bulk-rnaseq-read-in-salmon-output-using-tximport-and-then-deseq2/) · [preprocessing with salmon](https://divingintogeneticsandgenomics.com/post/how-to-preprocess-geo-bulk-rnaseq-data-with-salmon/)
+- [Claude Code documentation](https://docs.claude.com/en/docs/claude-code/overview)
+- [DESeq2 vignette](https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html) · [tximport vignette](https://bioconductor.org/packages/release/bioc/vignettes/tximport/inst/doc/tximport.html) · [clusterProfiler book](https://yulab-smu.top/biomedical-knowledge-mining-book/)
+
+**Thanks for coming — now go analyze your own RNAseq with Claude Code.** 🧬

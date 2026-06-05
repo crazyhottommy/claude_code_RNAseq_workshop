@@ -1,0 +1,442 @@
+[
+  {
+    "objectID": "setup.html",
+    "href": "setup.html",
+    "title": "Setup",
+    "section": "",
+    "text": "Five minutes of setup and you’re ready for the whole workshop. If you fall behind on any install, you can still follow along — every result is shown on this site."
+  },
+  {
+    "objectID": "setup.html#install-claude-code",
+    "href": "setup.html#install-claude-code",
+    "title": "Setup",
+    "section": "1. Install Claude Code",
+    "text": "1. Install Claude Code\nClaude Code is Anthropic’s agentic coding tool that runs in your terminal.\n# macOS / Linux\ncurl -fsSL https://claude.com/install.sh | bash\nThen start it and sign in:\nclaude\nSee the official docs for other install methods (npm, IDE extensions, the desktop app)."
+  },
+  {
+    "objectID": "setup.html#get-the-workshop-repo",
+    "href": "setup.html#get-the-workshop-repo",
+    "title": "Setup",
+    "section": "2. Get the workshop repo",
+    "text": "2. Get the workshop repo\ngit clone https://github.com/crazyhottommy/claude_code_RNAseq_workshop.git\ncd claude_code_RNAseq_workshop\nThe repo already contains the salmon quant.sf files for all four samples in data/salmon/, so you can start analyzing immediately — no large downloads.\ndata/\n├── salmon/\n│   ├── Normoxia_sgCTRL_1/quant.sf\n│   ├── Normoxia_sgCTRL_2/quant.sf\n│   ├── Hypoxia_sgCTRL_1/quant.sf\n│   └── Hypoxia_sgCTRL_2/quant.sf\n├── samples.csv          # which sample is which condition\n├── tx2gene.csv          # transcript → gene\n└── gene_name_map.csv    # gene id → gene symbol"
+  },
+  {
+    "objectID": "setup.html#install-the-r-bioconductor-packages",
+    "href": "setup.html#install-the-r-bioconductor-packages",
+    "title": "Setup",
+    "section": "3. Install the R / Bioconductor packages",
+    "text": "3. Install the R / Bioconductor packages\nThe downstream analysis is in R. Install everything with the helper script:\nRscript install.R\nThis installs tximport, DESeq2, clusterProfiler, org.Hs.eg.db and the tidyverse pieces (dplyr, readr, ggplot2, pheatmap). Don’t have R? Get it from r-project.org (we use R ≥ 4.3)."
+  },
+  {
+    "objectID": "setup.html#optional-tools-for-preprocessing",
+    "href": "setup.html#optional-tools-for-preprocessing",
+    "title": "Setup",
+    "section": "4. (Optional) tools for preprocessing",
+    "text": "4. (Optional) tools for preprocessing\nOnly needed if you want to regenerate quant.sf from raw FASTQ (covered in Preprocessing). Not required for the live session.\nconda env create -f environment.yml   # installs salmon, sra-tools, fastq-dl\nconda activate rnaseq"
+  },
+  {
+    "objectID": "setup.html#launch-claude-code-in-the-repo",
+    "href": "setup.html#launch-claude-code-in-the-repo",
+    "title": "Setup",
+    "section": "5. Launch Claude Code in the repo",
+    "text": "5. Launch Claude Code in the repo\nclaude\nBecause the repo ships a CLAUDE.md, Claude Code already knows the dataset, the file layout, and the analysis goal. Try opening with:\n\nTry this prompt\nRead CLAUDE.md and the files in data/, then tell me what this dataset is and what analysis we’re about to do.\n\nWhen it gives a sensible summary, you’re set. → On to 1 · The data."
+  },
+  {
+    "objectID": "06-wrap-up.html",
+    "href": "06-wrap-up.html",
+    "title": "6 · Wrap-up",
+    "section": "",
+    "text": "In one hour you took a real public dataset from salmon quantifications to a finished, biologically sensible analysis — and you did it by describing what you wanted, then reading and steering the code Claude Code wrote.",
+    "crumbs": [
+      "Walkthrough",
+      "6 · Wrap-up"
+    ]
+  },
+  {
+    "objectID": "06-wrap-up.html#what-we-did",
+    "href": "06-wrap-up.html#what-we-did",
+    "title": "6 · Wrap-up",
+    "section": "What we did",
+    "text": "What we did\nquant.sf ─► tximport ─► DESeq2 ─► results ─► PCA / volcano / heatmap ─► GO enrichment\n\nUnderstood the data first — let Claude Code read and explain before computing.\nSummarized to genes with tximport + tx2gene.\nModeled with DESeq2 (~ condition, hypoxia vs normoxia).\nSanity-checked against known hypoxia genes (VEGFA, CA9, BNIP3…).\nVisualized and interpreted the differentially expressed genes.",
+    "crumbs": [
+      "Walkthrough",
+      "6 · Wrap-up"
+    ]
+  },
+  {
+    "objectID": "06-wrap-up.html#the-prompt-cheat-sheet",
+    "href": "06-wrap-up.html#the-prompt-cheat-sheet",
+    "title": "6 · Wrap-up",
+    "section": "The prompt cheat sheet",
+    "text": "The prompt cheat sheet\n\n\n\n\n\n\n\nGoal\nPrompt seed\n\n\n\n\nUnderstand inputs\n“Read CLAUDE.md and data/, explain the dataset and the planned analysis.”\n\n\nImport\n“Load the salmon quant.sf files with tximport, summarize to genes with tx2gene.csv.”\n\n\nModel\n“Build a DESeq2 dataset, design ~ condition, reference level normoxia.”\n\n\nTest\n“Run DESeq2, get results for hypoxia vs normoxia, summarize up/down at padj &lt; 0.05.”\n\n\nAnnotate\n“Add gene symbols from gene_name_map.csv and sort by padj.”\n\n\nVisualize\n“Make a PCA, volcano, and heatmap of the top DE genes.”\n\n\nInterpret\n“Run GO enrichment on the up-regulated genes and plot the top terms.”",
+    "crumbs": [
+      "Walkthrough",
+      "6 · Wrap-up"
+    ]
+  },
+  {
+    "objectID": "06-wrap-up.html#working-with-the-ai-not-just-through-it",
+    "href": "06-wrap-up.html#working-with-the-ai-not-just-through-it",
+    "title": "6 · Wrap-up",
+    "section": "Working with the AI, not just through it",
+    "text": "Working with the AI, not just through it\nA few habits that made this reliable:\n\nRead before you run. Ask for an explanation of the data and a plan before generating analysis code.\nKeep a CLAUDE.md. It anchors every session with the file layout, conventions, and goal — so you don’t re-explain each time.\nBuild in sanity checks. A known positive control (the hypoxia genes here) instantly tells you whether the pipeline is correct.\nReview the code. Claude Code shows its work; skim the DESeq2 call, the contrast, the filtering. You stay the analyst.\nIterate in small steps. One question per prompt is easier to verify than “do the whole analysis.”",
+    "crumbs": [
+      "Walkthrough",
+      "6 · Wrap-up"
+    ]
+  },
+  {
+    "objectID": "06-wrap-up.html#use-it-on-your-data",
+    "href": "06-wrap-up.html#use-it-on-your-data",
+    "title": "6 · Wrap-up",
+    "section": "Use it on your data",
+    "text": "Use it on your data\nThe same flow generalizes. To adapt this repo:\n\nPut your quant.sf files under data/salmon/&lt;sample&gt;/.\nEdit data/samples.csv with your samples and conditions.\nRegenerate tx2gene.csv / gene_name_map.csv for your organism with scripts/make_tx2gene.R (point it at the matching GTF).\nOpen Claude Code and start with: “Adapt the analysis in scripts/analysis.R to my samples in data/samples.csv and my contrast.”\n\n\n\n\n\n\n\nThe whole thing, scripted\n\n\n\nscripts/analysis.R is the complete reference solution — run Rscript scripts/analysis.R to reproduce every result on this site in one shot.",
+    "crumbs": [
+      "Walkthrough",
+      "6 · Wrap-up"
+    ]
+  },
+  {
+    "objectID": "06-wrap-up.html#resources",
+    "href": "06-wrap-up.html#resources",
+    "title": "6 · Wrap-up",
+    "section": "Resources",
+    "text": "Resources\n\nOriginal blog posts by Tommy Tang: downstream with tximport + DESeq2 · preprocessing with salmon\nClaude Code documentation\nDESeq2 vignette · tximport vignette · clusterProfiler book\n\nThanks for coming — now go analyze your own RNAseq with Claude Code. 🧬",
+    "crumbs": [
+      "Walkthrough",
+      "6 · Wrap-up"
+    ]
+  },
+  {
+    "objectID": "04-visualization.html",
+    "href": "04-visualization.html",
+    "title": "4 · Visualization",
+    "section": "",
+    "text": "Numbers in a table are hard to trust until you see them. These are the plots every RNAseq analysis should produce — each one a different question you can ask Claude Code to answer.",
+    "crumbs": [
+      "Walkthrough",
+      "4 · Visualization"
+    ]
+  },
+  {
+    "objectID": "04-visualization.html#p-value-histogram-is-the-test-well-behaved",
+    "href": "04-visualization.html#p-value-histogram-is-the-test-well-behaved",
+    "title": "4 · Visualization",
+    "section": "p-value histogram — is the test well-behaved?",
+    "text": "p-value histogram — is the test well-behaved?\n\nTry this prompt\nPlot a histogram of the raw p-values from the DESeq2 results and tell me whether the shape looks healthy.\n\n\nggplot(res_df, aes(pvalue)) +\n  geom_histogram(boundary = 0, bins = 30, fill = \"#6b4de6\", color = \"white\") +\n  labs(title = \"p-value distribution\", x = \"raw p-value\", y = \"genes\") +\n  theme_bw()\n\n\n\n\n\n\n\n\nA healthy histogram is flat with a spike near zero: a uniform background of non-DE genes plus an enrichment of true positives. A U-shape or hill in the middle would warn of model problems.",
+    "crumbs": [
+      "Walkthrough",
+      "4 · Visualization"
+    ]
+  },
+  {
+    "objectID": "04-visualization.html#pca-do-samples-separate-by-condition",
+    "href": "04-visualization.html#pca-do-samples-separate-by-condition",
+    "title": "4 · Visualization",
+    "section": "PCA — do samples separate by condition?",
+    "text": "PCA — do samples separate by condition?\n\nTry this prompt\nApply a variance-stabilizing transformation and make a PCA plot colored by condition, labeling each sample.\n\n\nvsd &lt;- vst(dds, blind = TRUE)\npca &lt;- plotPCA(vsd, intgroup = \"condition\", returnData = TRUE)\npv  &lt;- round(100 * attr(pca, \"percentVar\"))\n\nggplot(pca, aes(PC1, PC2, color = condition, label = name)) +\n  geom_point(size = 4) +\n  ggrepel::geom_text_repel(size = 3, show.legend = FALSE) +\n  labs(x = paste0(\"PC1: \", pv[1], \"%\"), y = paste0(\"PC2: \", pv[2], \"%\"),\n       title = \"PCA (variance-stabilized)\") +\n  theme_bw()\n\n\n\n\n\n\n\n\nYou want the two conditions to land in different parts of PC1 — evidence that the biggest source of variation is the treatment.",
+    "crumbs": [
+      "Walkthrough",
+      "4 · Visualization"
+    ]
+  },
+  {
+    "objectID": "04-visualization.html#ma-plot-fold-change-vs-expression-level",
+    "href": "04-visualization.html#ma-plot-fold-change-vs-expression-level",
+    "title": "4 · Visualization",
+    "section": "MA plot — fold change vs expression level",
+    "text": "MA plot — fold change vs expression level\n\nTry this prompt\nMake an MA plot of the results so I can see fold change against mean expression.\n\n\nplotMA(res, ylim = c(-6, 6), main = \"MA: hypoxia vs normoxia\")\n\n\n\n\n\n\n\n\nEach dot is a gene; blue dots are significant. Significant genes should spread away from the y = 0 line, and there should be no strong trend across the x-axis after normalization.",
+    "crumbs": [
+      "Walkthrough",
+      "4 · Visualization"
+    ]
+  },
+  {
+    "objectID": "04-visualization.html#volcano-significance-vs-effect-size",
+    "href": "04-visualization.html#volcano-significance-vs-effect-size",
+    "title": "4 · Visualization",
+    "section": "Volcano — significance vs effect size",
+    "text": "Volcano — significance vs effect size\n\nTry this prompt\nDraw a volcano plot, highlight genes with padj &lt; 0.05 and |log2FC| &gt; 1, and label the top hypoxia genes.\n\n\nvolc &lt;- res_df |&gt;\n  mutate(sig = !is.na(padj) & padj &lt; 0.05 & abs(log2FoldChange) &gt; 1)\n\nlabels &lt;- volc |&gt;\n  filter(sig, gene_name %in% c(\"VEGFA\",\"CA9\",\"BNIP3\",\"SLC2A1\",\"PGK1\",\"LDHA\"))\n\nggplot(volc, aes(log2FoldChange, -log10(pvalue))) +\n  geom_point(aes(color = sig), alpha = 0.5, size = 1) +\n  scale_color_manual(values = c(`FALSE`=\"grey75\", `TRUE`=\"#c0392b\"), guide = \"none\") +\n  ggrepel::geom_text_repel(data = labels, aes(label = gene_name), size = 3) +\n  labs(title = \"Volcano: hypoxia vs normoxia\",\n       x = \"log2 fold change\", y = \"-log10 p-value\") +\n  theme_bw()",
+    "crumbs": [
+      "Walkthrough",
+      "4 · Visualization"
+    ]
+  },
+  {
+    "objectID": "04-visualization.html#heatmap-top-differentially-expressed-genes",
+    "href": "04-visualization.html#heatmap-top-differentially-expressed-genes",
+    "title": "4 · Visualization",
+    "section": "Heatmap — top differentially expressed genes",
+    "text": "Heatmap — top differentially expressed genes\n\nTry this prompt\nMake a heatmap of the top 30 significant genes using the variance-stabilized counts, z-scored per gene, with samples annotated by condition.\n\n\nlibrary(pheatmap)\n\nsig &lt;- res_df |&gt; filter(!is.na(padj) & padj &lt; 0.05)\ntop_ids &lt;- head(sig$gene_id, 30)\nmat &lt;- assay(vsd)[top_ids, , drop = FALSE]\nrownames(mat) &lt;- sig$gene_name[match(top_ids, sig$gene_id)]\n\nann &lt;- data.frame(condition = colData(dds)$condition,\n                  row.names = colnames(dds))\n\npheatmap(mat, scale = \"row\", annotation_col = ann,\n         show_rownames = TRUE, fontsize_row = 8,\n         main = \"Top 30 DE genes (row z-score)\")\n\n\n\n\n\n\n\n\nClear blocks — hypoxia samples high where normoxia samples are low — are exactly what you hope to see.\n→ What do these genes do? 5 · Enrichment.",
+    "crumbs": [
+      "Walkthrough",
+      "4 · Visualization"
+    ]
+  },
+  {
+    "objectID": "02-preprocessing.html",
+    "href": "02-preprocessing.html",
+    "title": "2 · Preprocessing",
+    "section": "",
+    "text": "This is how the raw FASTQ files became the quant.sf you’ll analyze. We walk through it but don’t run it live — building a human transcriptome index and quantifying full FASTQ takes too long for a one-hour session. The scripts are in scripts/, ready to run on your own time.",
+    "crumbs": [
+      "Walkthrough",
+      "2 · Preprocessing"
+    ]
+  },
+  {
+    "objectID": "02-preprocessing.html#the-pipeline-at-a-glance",
+    "href": "02-preprocessing.html#the-pipeline-at-a-glance",
+    "title": "2 · Preprocessing",
+    "section": "The pipeline at a glance",
+    "text": "The pipeline at a glance\nFASTQ (GEO/SRA)  ──►  salmon index (GENCODE v45)  ──►  salmon quant  ──►  quant.sf\n   script 01              script 02                      script 03",
+    "crumbs": [
+      "Walkthrough",
+      "2 · Preprocessing"
+    ]
+  },
+  {
+    "objectID": "02-preprocessing.html#step-1-download-fastq",
+    "href": "02-preprocessing.html#step-1-download-fastq",
+    "title": "2 · Preprocessing",
+    "section": "Step 1 — Download FASTQ",
+    "text": "Step 1 — Download FASTQ\nThe blog this workshop is based on uses fastq-dl to pull FASTQ from ENA by SRA experiment accession:\nfastq-dl --accession SRX14311105 --group-by-experiment\n--group-by-experiment merges multiple runs of the same sample into one file. Our scripts/01_download_fastq.sh loops over all four accessions and also offers a fast SUBSET mode (via sra-tools fastq-dump -X) used to build this repo’s data.\n\nTry this prompt\nWalk me through scripts/01_download_fastq.sh. What’s the difference between FULL and SUBSET mode, and why would I use each?",
+    "crumbs": [
+      "Walkthrough",
+      "2 · Preprocessing"
+    ]
+  },
+  {
+    "objectID": "02-preprocessing.html#step-2-build-the-salmon-index",
+    "href": "02-preprocessing.html#step-2-build-the-salmon-index",
+    "title": "2 · Preprocessing",
+    "section": "Step 2 — Build the salmon index",
+    "text": "Step 2 — Build the salmon index\nSalmon maps reads against a transcriptome, so we index the GENCODE v45 transcript FASTA:\nwget https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_45/gencode.v45.transcripts.fa.gz\nsalmon index -t gencode.v45.transcripts.fa.gz -i gencode.v45_human_index -k 31 --gencode\n\n-k 31 — k-mer size; 31 is standard for reads ≥ 75 bp.\n--gencode — strips the |-delimited junk from GENCODE FASTA headers so transcript IDs stay clean.\n\nThis is the memory-heavy step (a few GB of RAM, ~10–20 min). See scripts/02_build_salmon_index.sh.",
+    "crumbs": [
+      "Walkthrough",
+      "2 · Preprocessing"
+    ]
+  },
+  {
+    "objectID": "02-preprocessing.html#step-3-quantify",
+    "href": "02-preprocessing.html#step-3-quantify",
+    "title": "2 · Preprocessing",
+    "section": "Step 3 — Quantify",
+    "text": "Step 3 — Quantify\nFor single-end reads, feed the FASTQ with -r (paired-end would use -1/-2):\nsalmon quant -i gencode.v45_human_index -l A \\\n  -r fastq/Hypoxia_sgCTRL_1.fastq.gz \\\n  -o data/salmon/Hypoxia_sgCTRL_1 \\\n  --validateMappings --gcBias --seqBias\n\n-l A — auto-detect the library type.\n--validateMappings — selective alignment, more accurate.\n--gcBias / --seqBias — correct common technical biases.\n\nEach run writes a quant.sf (plus logs). The original study reported 91–93% mapping rates — a healthy sign. See scripts/03_salmon_quant.sh.",
+    "crumbs": [
+      "Walkthrough",
+      "2 · Preprocessing"
+    ]
+  },
+  {
+    "objectID": "02-preprocessing.html#step-4-build-the-transcriptgene-map",
+    "href": "02-preprocessing.html#step-4-build-the-transcriptgene-map",
+    "title": "2 · Preprocessing",
+    "section": "Step 4 — Build the transcript→gene map",
+    "text": "Step 4 — Build the transcript→gene map\nscripts/make_tx2gene.R parses the GENCODE GTF with rtracklayer and writes data/tx2gene.csv and data/gene_name_map.csv:\ngtf &lt;- rtracklayer::import(\"reference/gencode.v45.annotation.gtf.gz\")\ntx  &lt;- subset(as.data.frame(gtf), type == \"transcript\")\n# transcript_id -&gt; gene_id  and  gene_id -&gt; gene_name\n\n\n\n\n\n\nReproduce the whole thing later\n\n\n\nconda env create -f environment.yml, then run scripts/01 → 02 → 03 → make_tx2gene.R. Everything you need is in the repo.\n\n\n→ Now the fun part: load the data and find differentially expressed genes — 3 · Import & DESeq2.",
+    "crumbs": [
+      "Walkthrough",
+      "2 · Preprocessing"
+    ]
+  },
+  {
+    "objectID": "01-the-data.html",
+    "href": "01-the-data.html",
+    "title": "1 · The data",
+    "section": "",
+    "text": "Before any analysis, understand what you’re working with. This is exactly where an AI assistant shines: let Claude Code read and summarize the files for you.",
+    "crumbs": [
+      "Walkthrough",
+      "1 · The data"
+    ]
+  },
+  {
+    "objectID": "01-the-data.html#the-experiment",
+    "href": "01-the-data.html#the-experiment",
+    "title": "1 · The data",
+    "section": "The experiment",
+    "text": "The experiment\nGSE197576 is a human bulk-RNAseq study. We use four single-end samples:\n\n\n\nSample\nCondition\nSRA experiment\n\n\n\n\nNormoxia_sgCTRL_1\nnormoxia\nSRX14311105\n\n\nNormoxia_sgCTRL_2\nnormoxia\nSRX14311106\n\n\nHypoxia_sgCTRL_1\nhypoxia\nSRX14311111\n\n\nHypoxia_sgCTRL_2\nhypoxia\nSRX14311112\n\n\n\nHypoxia = low oxygen. Cells respond by stabilizing the HIF transcription factors, which switch on a well-known program of genes (VEGFA, CA9, BNIP3, SLC2A1/GLUT1, PGK1…). If our analysis is right, those should be among the top up-regulated genes — a free biological positive control.",
+    "crumbs": [
+      "Walkthrough",
+      "1 · The data"
+    ]
+  },
+  {
+    "objectID": "01-the-data.html#explore-it-with-claude-code",
+    "href": "01-the-data.html#explore-it-with-claude-code",
+    "title": "1 · The data",
+    "section": "Explore it with Claude Code",
+    "text": "Explore it with Claude Code\n\nTry this prompt\nWhat is in data/salmon/Normoxia_sgCTRL_1/quant.sf? Show me the first few rows and explain each column.\n\nA salmon quant.sf is a plain TSV with one row per transcript:\nName                Length  EffectiveLength  TPM       NumReads\nENST00000456328.2   1657    1465.83          0.412331  12.000\nENST00000450305.2   632     441.30           0.000000  0.000\n...\n\nName — the transcript ID (versioned GENCODE ENST).\nLength / EffectiveLength — transcript length and the length adjusted for the fragment-length distribution.\nTPM — transcripts per million (normalized abundance).\nNumReads — estimated reads assigned to the transcript (this is what DESeq2 ultimately uses, after summing to gene level).\n\n\nTry this prompt\nRead data/samples.csv and confirm how many samples are in each condition. Also tell me how many transcripts are quantified in each quant.sf file.",
+    "crumbs": [
+      "Walkthrough",
+      "1 · The data"
+    ]
+  },
+  {
+    "objectID": "01-the-data.html#why-we-need-tx2gene",
+    "href": "01-the-data.html#why-we-need-tx2gene",
+    "title": "1 · The data",
+    "section": "Why we need tx2gene",
+    "text": "Why we need tx2gene\nSalmon quantifies transcripts, but differential expression is usually done per gene. The map from transcript to gene comes from the GENCODE annotation and lives in data/tx2gene.csv:\ntranscript_id        gene_id\nENST00000456328.2    ENSG00000290825.2\nENST00000450305.2    ENSG00000223972.6\n...\ntximport uses this to sum transcript-level estimates into gene-level counts in the next step. The companion data/gene_name_map.csv turns the cryptic ENSG… IDs into readable symbols at the end.\n\n\n\n\n\n\nThe Claude Code habit\n\n\n\nNotice the pattern: ask it to read and explain before you ask it to compute. You catch misunderstandings about the data early — when they’re cheap to fix.\n\n\n→ Next: how those quant.sf files were produced — 2 · Preprocessing.",
+    "crumbs": [
+      "Walkthrough",
+      "1 · The data"
+    ]
+  },
+  {
+    "objectID": "03-import-deseq2.html",
+    "href": "03-import-deseq2.html",
+    "title": "3 · Import & DESeq2",
+    "section": "",
+    "text": "This is the heart of the workshop: from salmon files to a ranked list of differentially expressed genes. Drive each step by prompting Claude Code — the code below is what it should produce, and the output is real, run on this repo’s data.",
+    "crumbs": [
+      "Walkthrough",
+      "3 · Import & DESeq2"
+    ]
+  },
+  {
+    "objectID": "03-import-deseq2.html#load-the-salmon-output-with-tximport",
+    "href": "03-import-deseq2.html#load-the-salmon-output-with-tximport",
+    "title": "3 · Import & DESeq2",
+    "section": "Load the salmon output with tximport",
+    "text": "Load the salmon output with tximport\n\nTry this prompt\nRead data/samples.csv. Then load the four salmon quant.sf files with tximport, summarizing transcripts to genes using data/tx2gene.csv. Show me the dimensions of the gene-level count matrix.\n\n\nlibrary(tximport)\nlibrary(readr)\nlibrary(dplyr)\n\nsamples &lt;- read_csv(\"data/samples.csv\", show_col_types = FALSE)\nsamples$condition &lt;- factor(samples$condition, levels = c(\"normoxia\", \"hypoxia\"))\n\nfiles &lt;- file.path(\"data\", \"salmon\", samples$sample, \"quant.sf\")\nnames(files) &lt;- samples$sample\n\ntx2gene &lt;- read_csv(\"data/tx2gene.csv\", show_col_types = FALSE)\ntxi &lt;- tximport(files, type = \"salmon\", tx2gene = tx2gene)\n\ndim(txi$counts)            # genes x samples\n## [1] 62749     4\nhead(round(txi$counts), 3)\n##                    Normoxia_sgCTRL_1 Normoxia_sgCTRL_2 Hypoxia_sgCTRL_1\n## ENSG00000000003.16               116               137              133\n## ENSG00000000005.6                  0                 0                0\n## ENSG00000000419.14               475               505              422\n##                    Hypoxia_sgCTRL_2\n## ENSG00000000003.16              147\n## ENSG00000000005.6                 0\n## ENSG00000000419.14              410\n\ntximport returned three matrices — counts, abundance (TPM) and length. DESeq2 uses all three: the per-gene average transcript length becomes an offset that corrects for differential transcript usage between samples.",
+    "crumbs": [
+      "Walkthrough",
+      "3 · Import & DESeq2"
+    ]
+  },
+  {
+    "objectID": "03-import-deseq2.html#build-the-deseq2-dataset",
+    "href": "03-import-deseq2.html#build-the-deseq2-dataset",
+    "title": "3 · Import & DESeq2",
+    "section": "Build the DESeq2 dataset",
+    "text": "Build the DESeq2 dataset\n\nTry this prompt\nCreate a DESeq2 dataset from the tximport object with design ~ condition, and set normoxia as the reference level so fold changes read as hypoxia-vs-normoxia.\n\n\nlibrary(DESeq2)\n\ndds &lt;- DESeqDataSetFromTximport(txi, colData = samples, design = ~ condition)\ndds$condition &lt;- relevel(dds$condition, ref = \"normoxia\")\ndds\n## class: DESeqDataSet \n## dim: 62749 4 \n## metadata(1): version\n## assays(2): counts avgTxLength\n## rownames(62749): ENSG00000000003.16 ENSG00000000005.6 ...\n##   ENSG00000293559.1 ENSG00000293560.1\n## rowData names(0):\n## colnames(4): Normoxia_sgCTRL_1 Normoxia_sgCTRL_2 Hypoxia_sgCTRL_1\n##   Hypoxia_sgCTRL_2\n## colData names(4): sample condition srx replicate",
+    "crumbs": [
+      "Walkthrough",
+      "3 · Import & DESeq2"
+    ]
+  },
+  {
+    "objectID": "03-import-deseq2.html#filter-low-count-genes",
+    "href": "03-import-deseq2.html#filter-low-count-genes",
+    "title": "3 · Import & DESeq2",
+    "section": "Filter low-count genes",
+    "text": "Filter low-count genes\nGenes with almost no reads add noise and drag down multiple-testing power. A light filter is standard:\n\nTry this prompt\nRemove genes whose total count across all samples is 10 or fewer, and tell me how many genes remain.\n\n\nkeep &lt;- rowSums(counts(dds)) &gt; 10\ndds &lt;- dds[keep, ]\nnrow(dds)\n## [1] 16654",
+    "crumbs": [
+      "Walkthrough",
+      "3 · Import & DESeq2"
+    ]
+  },
+  {
+    "objectID": "03-import-deseq2.html#run-differential-expression",
+    "href": "03-import-deseq2.html#run-differential-expression",
+    "title": "3 · Import & DESeq2",
+    "section": "Run differential expression",
+    "text": "Run differential expression\n\nTry this prompt\nRun DESeq2 and extract results for the contrast hypoxia vs normoxia. Summarize how many genes are up and down at padj &lt; 0.05.\n\n\ndds &lt;- DESeq(dds)\nres &lt;- results(dds, contrast = c(\"condition\", \"hypoxia\", \"normoxia\"))\nsummary(res)\n## \n## out of 16654 with nonzero total read count\n## adjusted p-value &lt; 0.1\n## LFC &gt; 0 (up)       : 1215, 7.3%\n## LFC &lt; 0 (down)     : 1362, 8.2%\n## outliers [1]       : 0, 0%\n## low counts [2]     : 3552, 21%\n## (mean count &lt; 12)\n## [1] see 'cooksCutoff' argument of ?results\n## [2] see 'independentFiltering' argument of ?results\n\nDESeq() does three things in one call: estimates size factors (library-size normalization), estimates per-gene dispersion, and fits a negative-binomial GLM with a Wald test.",
+    "crumbs": [
+      "Walkthrough",
+      "3 · Import & DESeq2"
+    ]
+  },
+  {
+    "objectID": "03-import-deseq2.html#annotate-with-gene-symbols",
+    "href": "03-import-deseq2.html#annotate-with-gene-symbols",
+    "title": "3 · Import & DESeq2",
+    "section": "Annotate with gene symbols",
+    "text": "Annotate with gene symbols\nThe results are indexed by ENSG… IDs. Join the symbol map so the table is human-readable:\n\nTry this prompt\nConvert the results to a data frame, add gene symbols from data/gene_name_map.csv, sort by adjusted p-value, and show the top 15 genes.\n\n\nlibrary(tibble)\n\ngene_name_map &lt;- read_csv(\"data/gene_name_map.csv\", show_col_types = FALSE)\n\nres_df &lt;- res |&gt;\n  as.data.frame() |&gt;\n  rownames_to_column(\"gene_id\") |&gt;\n  left_join(gene_name_map, by = \"gene_id\") |&gt;\n  arrange(padj)\n\nres_df |&gt;\n  select(gene_name, gene_id, baseMean, log2FoldChange, padj) |&gt;\n  head(15)\n\n\n  \n\n\n\n\n# Biological sanity check: are canonical hypoxia genes up-regulated?\nhif &lt;- c(\"VEGFA\", \"CA9\", \"BNIP3\", \"SLC2A1\", \"PGK1\", \"LDHA\", \"PDK1\")\nres_df |&gt;\n  filter(gene_name %in% hif) |&gt;\n  select(gene_name, log2FoldChange, padj) |&gt;\n  arrange(padj)\n\n\n  \n\n\n\nIf the hypoxia program is up, the analysis is behaving. 🎯\n→ Let’s make this visual — 4 · Visualization.",
+    "crumbs": [
+      "Walkthrough",
+      "3 · Import & DESeq2"
+    ]
+  },
+  {
+    "objectID": "05-enrichment.html",
+    "href": "05-enrichment.html",
+    "title": "5 · Enrichment",
+    "section": "",
+    "text": "A list of significant genes is a means, not an end. Functional enrichment asks: what biological processes are over-represented among the genes that changed? For a hypoxia experiment, we expect terms like response to hypoxia, glycolysis, and angiogenesis.",
+    "crumbs": [
+      "Walkthrough",
+      "5 · Enrichment"
+    ]
+  },
+  {
+    "objectID": "05-enrichment.html#pick-the-gene-sets",
+    "href": "05-enrichment.html#pick-the-gene-sets",
+    "title": "5 · Enrichment",
+    "section": "Pick the gene sets",
+    "text": "Pick the gene sets\nWe need two lists: the significant up-regulated genes, and the universe of all tested genes (so enrichment is measured against the right background). GENCODE IDs carry a version suffix (.17) that the annotation database doesn’t use, so we strip it.\n\nTry this prompt\nFrom the DESeq2 results, take genes with padj &lt; 0.05 and log2FoldChange &gt; 1 as the up-regulated set, and all tested genes as the universe. Strip the Ensembl version suffix from the IDs.\n\n\nstrip_version &lt;- function(x) sub(\"\\\\.\\\\d+$\", \"\", x)\n\nup &lt;- res_df |&gt;\n  filter(!is.na(padj), padj &lt; 0.05, log2FoldChange &gt; 1) |&gt;\n  pull(gene_id) |&gt;\n  strip_version()\n\nuniverse &lt;- res_df |&gt;\n  filter(!is.na(padj)) |&gt;\n  pull(gene_id) |&gt;\n  strip_version()\n\nlength(up)\n\n[1] 614",
+    "crumbs": [
+      "Walkthrough",
+      "5 · Enrichment"
+    ]
+  },
+  {
+    "objectID": "05-enrichment.html#go-over-representation-with-clusterprofiler",
+    "href": "05-enrichment.html#go-over-representation-with-clusterprofiler",
+    "title": "5 · Enrichment",
+    "section": "GO over-representation with clusterProfiler",
+    "text": "GO over-representation with clusterProfiler\n\nTry this prompt\nRun a GO Biological Process over-representation test on the up-regulated genes with clusterProfiler, using org.Hs.eg.db, Ensembl IDs, and the universe as background. Show the top terms.\n\n\nlibrary(clusterProfiler)\nlibrary(org.Hs.eg.db)\n\nego &lt;- enrichGO(\n  gene          = up,\n  universe      = universe,\n  OrgDb         = org.Hs.eg.db,\n  keyType       = \"ENSEMBL\",\n  ont           = \"BP\",\n  pAdjustMethod = \"BH\",\n  pvalueCutoff  = 0.05,\n  qvalueCutoff  = 0.10,\n  readable      = TRUE\n)\n\nas.data.frame(ego) |&gt;\n  dplyr::select(Description, GeneRatio, p.adjust, Count) |&gt;  # AnnotationDbi masks select()\n  head(15)",
+    "crumbs": [
+      "Walkthrough",
+      "5 · Enrichment"
+    ]
+  },
+  {
+    "objectID": "05-enrichment.html#visualize-the-enriched-terms",
+    "href": "05-enrichment.html#visualize-the-enriched-terms",
+    "title": "5 · Enrichment",
+    "section": "Visualize the enriched terms",
+    "text": "Visualize the enriched terms\n\nTry this prompt\nMake a dotplot of the top enriched GO terms.\n\n\nif (!is.null(ego) && nrow(as.data.frame(ego)) &gt; 0) {\n  dotplot(ego, showCategory = 15) +\n    ggplot2::labs(title = \"GO Biological Process — up in hypoxia\")\n} else {\n  message(\"No enriched terms at the chosen thresholds on this subset.\")\n}\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nNote\n\n\n\nWith a subset of reads and only two replicates per group, the exact terms vary, but the hypoxia / metabolic signal should dominate. On the full dataset the enrichment is sharper.",
+    "crumbs": [
+      "Walkthrough",
+      "5 · Enrichment"
+    ]
+  },
+  {
+    "objectID": "05-enrichment.html#where-to-go-further",
+    "href": "05-enrichment.html#where-to-go-further",
+    "title": "5 · Enrichment",
+    "section": "Where to go further",
+    "text": "Where to go further\nAsk Claude Code to extend the analysis:\n\nGSEA instead of over-representation — clusterProfiler::gseGO() on a ranked gene list (uses every gene, no hard cutoff).\nPathways — KEGG (enrichKEGG) or Reactome (ReactomePA::enrichPathway).\nMSigDB Hallmark gene sets via msigdbr + enricher — the HALLMARK_HYPOXIA set is the obvious target here.\n\n→ Recap and how to use this on your own data — 6 · Wrap-up.",
+    "crumbs": [
+      "Walkthrough",
+      "5 · Enrichment"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Analyze RNAseq Data End-to-End with Claude Code",
+    "section": "",
+    "text": "A 1-hour, hands-on workshop. You bring a terminal and curiosity. By the end you’ll have taken a real public bulk-RNAseq dataset from salmon quantifications to a finished differential-expression analysis — with heatmaps, volcano plots, and GO enrichment — driven entirely by prompting Claude Code."
+  },
+  {
+    "objectID": "index.html#what-youll-learn",
+    "href": "index.html#what-youll-learn",
+    "title": "Analyze RNAseq Data End-to-End with Claude Code",
+    "section": "What you’ll learn",
+    "text": "What you’ll learn\n\nHow to point Claude Code at a real bioinformatics dataset and have it understand the data before writing any code.\nThe standard bulk-RNAseq downstream workflow — tximport → DESeq2 → results → visualization → enrichment — and how to drive each step in plain English.\nHow to review, correct, and trust AI-generated analysis code instead of copy-pasting blindly.\nHow preprocessing (FASTQ → salmon quant.sf) works, so you can reproduce the whole pipeline later."
+  },
+  {
+    "objectID": "index.html#the-dataset",
+    "href": "index.html#the-dataset",
+    "title": "Analyze RNAseq Data End-to-End with Claude Code",
+    "section": "The dataset",
+    "text": "The dataset\nA real, published experiment from GEO: GSE197576 — human cells under hypoxia vs normoxia. Four single-end samples (2 per condition). We expect classic hypoxia-induced genes (VEGFA, CA9, BNIP3…) to light up — a built-in sanity check that the analysis is correct."
+  },
+  {
+    "objectID": "index.html#agenda-60-minutes",
+    "href": "index.html#agenda-60-minutes",
+    "title": "Analyze RNAseq Data End-to-End with Claude Code",
+    "section": "Agenda (60 minutes)",
+    "text": "Agenda (60 minutes)\n\n\n\nTime\nSegment\nPage\n\n\n\n\n0–5\nIntro to Claude Code, clone the repo\nSetup\n\n\n5–12\nExplore the salmon data with Claude Code\n1 · The data\n\n\n12–20\nHow the quant.sf files were made\n2 · Preprocessing\n\n\n20–42\nImport & differential expression\n3 · Import & DESeq2\n\n\n42–54\nVisualize the results\n4 · Visualization\n\n\n54–60\nFunctional enrichment + wrap-up\n5 · Enrichment · 6 · Wrap-up"
+  },
+  {
+    "objectID": "index.html#how-this-site-works",
+    "href": "index.html#how-this-site-works",
+    "title": "Analyze RNAseq Data End-to-End with Claude Code",
+    "section": "How this site works",
+    "text": "How this site works\nEvery analysis step shows two things: the natural-language prompt you give Claude Code, and the code/result it produces. The prompts look like this:\n\nTry this prompt\nLoad the salmon quantification files in data/salmon/ with tximport, summarize them to gene level using data/tx2gene.csv, and build a DESeq2 dataset comparing hypoxia vs normoxia.\n\nYou don’t have to type them verbatim — they’re a starting point. Claude Code reads CLAUDE.md in this repo, so it already knows where the data lives and what we’re trying to do.\n→ Start at Setup."
+  }
+]

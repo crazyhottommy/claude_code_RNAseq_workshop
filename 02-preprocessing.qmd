@@ -1,0 +1,80 @@
+---
+title: "2 · Preprocessing"
+---
+
+This is how the raw FASTQ files became the `quant.sf` you'll analyze. We **walk through it but don't run it live** — building a human transcriptome index and quantifying full FASTQ takes too long for a one-hour session. The scripts are in `scripts/`, ready to run on your own time.
+
+::: {.callout-note}
+The committed `quant.sf` in this repo are **real salmon output**. To keep the repo small and the download fast, they were generated from a subset of reads per sample (`MODE=SUBSET`). The pipeline below is identical for the full data.
+:::
+
+## The pipeline at a glance
+
+```
+FASTQ (GEO/SRA)  ──►  salmon index (GENCODE v45)  ──►  salmon quant  ──►  quant.sf
+   script 01              script 02                      script 03
+```
+
+## Step 1 — Download FASTQ
+
+The blog this workshop is based on uses [`fastq-dl`](https://github.com/rpetit3/fastq-dl) to pull FASTQ from ENA by SRA experiment accession:
+
+```bash
+fastq-dl --accession SRX14311105 --group-by-experiment
+```
+
+`--group-by-experiment` merges multiple runs of the same sample into one file. Our `scripts/01_download_fastq.sh` loops over all four accessions and also offers a fast `SUBSET` mode (via `sra-tools fastq-dump -X`) used to build this repo's data.
+
+::: {.claude-prompt}
+[Try this prompt]{.prompt-label}
+
+[Walk me through `scripts/01_download_fastq.sh`. What's the difference between FULL and SUBSET mode, and why would I use each?]{.prompt-text}
+:::
+
+## Step 2 — Build the salmon index
+
+Salmon maps reads against a **transcriptome**, so we index the GENCODE v45 transcript FASTA:
+
+```bash
+wget https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_45/gencode.v45.transcripts.fa.gz
+salmon index -t gencode.v45.transcripts.fa.gz -i gencode.v45_human_index -k 31 --gencode
+```
+
+- `-k 31` — k-mer size; 31 is standard for reads ≥ 75 bp.
+- `--gencode` — strips the `|`-delimited junk from GENCODE FASTA headers so transcript IDs stay clean.
+
+This is the memory-heavy step (a few GB of RAM, ~10–20 min). See `scripts/02_build_salmon_index.sh`.
+
+## Step 3 — Quantify
+
+For **single-end** reads, feed the FASTQ with `-r` (paired-end would use `-1`/`-2`):
+
+```bash
+salmon quant -i gencode.v45_human_index -l A \
+  -r fastq/Hypoxia_sgCTRL_1.fastq.gz \
+  -o data/salmon/Hypoxia_sgCTRL_1 \
+  --validateMappings --gcBias --seqBias
+```
+
+- `-l A` — auto-detect the library type.
+- `--validateMappings` — selective alignment, more accurate.
+- `--gcBias` / `--seqBias` — correct common technical biases.
+
+Each run writes a `quant.sf` (plus logs). The original study reported **91–93% mapping rates** — a healthy sign. See `scripts/03_salmon_quant.sh`.
+
+## Step 4 — Build the transcript→gene map
+
+`scripts/make_tx2gene.R` parses the GENCODE GTF with `rtracklayer` and writes `data/tx2gene.csv` and `data/gene_name_map.csv`:
+
+```r
+gtf <- rtracklayer::import("reference/gencode.v45.annotation.gtf.gz")
+tx  <- subset(as.data.frame(gtf), type == "transcript")
+# transcript_id -> gene_id  and  gene_id -> gene_name
+```
+
+::: {.callout-tip}
+## Reproduce the whole thing later
+`conda env create -f environment.yml`, then run `scripts/01 → 02 → 03 → make_tx2gene.R`. Everything you need is in the repo.
+:::
+
+→ Now the fun part: load the data and find differentially expressed genes — **[3 · Import & DESeq2](03-import-deseq2.qmd)**.

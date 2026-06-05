@@ -1,0 +1,46 @@
+---
+title: "Analyze RNAseq Data End-to-End with Claude Code"
+toc: false
+---
+
+::: {.workshop-hero}
+**A 1-hour, hands-on workshop.** You bring a terminal and curiosity. By the end you'll have taken a real public bulk-RNAseq dataset from salmon quantifications to a finished differential-expression analysis — with heatmaps, volcano plots, and GO enrichment — **driven entirely by prompting [Claude Code](https://claude.com/claude-code).**
+:::
+
+## What you'll learn
+
+- How to point Claude Code at a real bioinformatics dataset and have it *understand* the data before writing any code.
+- The standard bulk-RNAseq downstream workflow — **tximport → DESeq2 → results → visualization → enrichment** — and how to drive each step in plain English.
+- How to review, correct, and trust AI-generated analysis code instead of copy-pasting blindly.
+- How preprocessing (FASTQ → salmon `quant.sf`) works, so you can reproduce the whole pipeline later.
+
+## The dataset
+
+A real, published experiment from GEO: **[GSE197576](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE197576)** — human cells under **hypoxia vs normoxia**. Four single-end samples (2 per condition). We expect classic hypoxia-induced genes (*VEGFA*, *CA9*, *BNIP3*…) to light up — a built-in sanity check that the analysis is correct.
+
+## Agenda (60 minutes)
+
+| Time | Segment | Page |
+|------|---------|------|
+| 0–5  | Intro to Claude Code, clone the repo | [Setup](setup.qmd) |
+| 5–12 | Explore the salmon data *with Claude Code* | [1 · The data](01-the-data.qmd) |
+| 12–20 | How the `quant.sf` files were made | [2 · Preprocessing](02-preprocessing.qmd) |
+| 20–42 | Import & differential expression | [3 · Import & DESeq2](03-import-deseq2.qmd) |
+| 42–54 | Visualize the results | [4 · Visualization](04-visualization.qmd) |
+| 54–60 | Functional enrichment + wrap-up | [5 · Enrichment](05-enrichment.qmd) · [6 · Wrap-up](06-wrap-up.qmd) |
+
+: {.agenda}
+
+## How this site works
+
+Every analysis step shows **two things**: the natural-language prompt you give Claude Code, and the code/result it produces. The prompts look like this:
+
+::: {.claude-prompt}
+[Try this prompt]{.prompt-label}
+
+[Load the salmon quantification files in `data/salmon/` with tximport, summarize them to gene level using `data/tx2gene.csv`, and build a DESeq2 dataset comparing hypoxia vs normoxia.]{.prompt-text}
+:::
+
+You don't have to type them verbatim — they're a starting point. Claude Code reads [`CLAUDE.md`](https://github.com/crazyhottommy/claude_code_RNAseq_workshop/blob/main/CLAUDE.md) in this repo, so it already knows where the data lives and what we're trying to do.
+
+→ **Start at [Setup](setup.qmd).**

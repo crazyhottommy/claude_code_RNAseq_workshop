@@ -1,0 +1,5 @@
+sample,condition,srx,replicate
+Normoxia_sgCTRL_1,normoxia,SRX14311105,1
+Normoxia_sgCTRL_2,normoxia,SRX14311106,2
+Hypoxia_sgCTRL_1,hypoxia,SRX14311111,1
+Hypoxia_sgCTRL_2,hypoxia,SRX14311112,2

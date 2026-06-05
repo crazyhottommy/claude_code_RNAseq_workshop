@@ -1,0 +1,3 @@
+/* Minor tweaks layered on top of styles.scss */
+.callout { margin-top: 1rem; }
+pre.sourceCode { border-radius: 8px; }

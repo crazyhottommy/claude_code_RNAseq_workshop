@@ -1,0 +1,15 @@
+# Conda environment for the RNAseq preprocessing pipeline (download + salmon).
+# Create with:  conda env create -f environment.yml
+# Activate with: conda activate rnaseq
+#
+# These tools are only needed to regenerate quant.sf from FASTQ. The committed
+# quant.sf in data/salmon/ let you skip straight to the R downstream analysis.
+name: rnaseq
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - salmon
+  - sra-tools
+  - fastq-dl
+  - pigz

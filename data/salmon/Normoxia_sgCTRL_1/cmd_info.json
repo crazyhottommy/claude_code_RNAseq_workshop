@@ -1,0 +1,12 @@
+{
+    "salmon_version": "1.11.4",
+    "index": "reference/gencode.v45_human_index",
+    "libType": "A",
+    "unmatedReads": "fastq/Normoxia_sgCTRL_1.fastq.gz",
+    "output": "data/salmon/Normoxia_sgCTRL_1",
+    "validateMappings": [],
+    "gcBias": [],
+    "seqBias": [],
+    "threads": "6",
+    "auxDir": "aux_info"
+}

@@ -1,0 +1,65 @@
+project:
+  type: website
+  output-dir: docs
+  render:
+    - "*.qmd"          # don't render CLAUDE.md / README.md as site pages
+
+execute:
+  freeze: auto      # cache executed R outputs in _freeze/ so publishing never re-runs R
+  warning: false
+  message: false
+
+website:
+  title: "RNAseq with Claude Code"
+  description: "A hands-on workshop: analyze bulk RNAseq data end-to-end with Claude Code."
+  site-url: "https://crazyhottommy.github.io/claude_code_RNAseq_workshop/"
+  repo-url: "https://github.com/crazyhottommy/claude_code_RNAseq_workshop"
+  repo-actions: [edit, issue]
+  page-navigation: true
+  back-to-top-navigation: true
+  navbar:
+    background: primary
+    left:
+      - text: "Home"
+        href: index.qmd
+      - text: "Setup"
+        href: setup.qmd
+      - sidebar:workshop
+    right:
+      - icon: github
+        href: https://github.com/crazyhottommy/claude_code_RNAseq_workshop
+  sidebar:
+    - id: workshop
+      title: "Workshop"
+      style: floating
+      contents:
+        - section: "Walkthrough"
+          contents:
+            - text: "1 · The data"
+              href: 01-the-data.qmd
+            - text: "2 · Preprocessing"
+              href: 02-preprocessing.qmd
+            - text: "3 · Import & DESeq2"
+              href: 03-import-deseq2.qmd
+            - text: "4 · Visualization"
+              href: 04-visualization.qmd
+            - text: "5 · Enrichment"
+              href: 05-enrichment.qmd
+            - text: "6 · Wrap-up"
+              href: 06-wrap-up.qmd
+  page-footer:
+    left: "Built for a live workshop with [Claude Code](https://claude.com/claude-code)."
+    right: "Data: GEO [GSE197576](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE197576)"
+
+format:
+  html:
+    theme:
+      - cosmo
+      - styles.scss
+    css: styles.css
+    toc: true
+    toc-depth: 3
+    code-copy: true
+    code-overflow: wrap
+    df-print: paged
+    highlight-style: github

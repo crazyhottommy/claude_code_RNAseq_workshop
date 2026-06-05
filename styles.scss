@@ -1,0 +1,46 @@
+/*-- scss:defaults --*/
+$primary:   #6b4de6;   // Claude-ish violet
+$body-color: #1f2430;
+$link-color: #6b4de6;
+$code-bg:   #f6f5ff;
+
+/*-- scss:rules --*/
+
+// "Try this prompt" callout — the prompt an attendee types into Claude Code.
+.claude-prompt {
+  border: 1px solid #d9d2ff;
+  border-left: 4px solid $primary;
+  background: linear-gradient(180deg, #f6f5ff 0%, #fbfaff 100%);
+  border-radius: 8px;
+  padding: 0.9rem 1.1rem;
+  margin: 1.25rem 0;
+}
+.claude-prompt .prompt-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: $primary;
+  margin-bottom: 0.4rem;
+}
+.claude-prompt .prompt-label::before {
+  content: "✦";
+}
+.claude-prompt p { margin-bottom: 0; }
+.claude-prompt .prompt-text {
+  font-family: var(--bs-font-monospace, monospace);
+  font-size: 0.92rem;
+  color: #2b2350;
+}
+
+// Agenda / timing pills on the landing page
+.agenda td:first-child { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+// Make the hero on the landing page stand out
+.workshop-hero {
+  padding: 2rem 0 0.5rem;
+}
+.workshop-hero .lead { font-size: 1.2rem; }

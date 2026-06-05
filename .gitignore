@@ -1,0 +1,30 @@
+# Raw data & references (large, regenerable) -- never commit
+fastq/
+reference/
+*.fastq
+*.fastq.gz
+reference/gencode.v45_human_index/
+
+# Quarto build artifacts
+/.quarto/
+*_files/
+site_libs/
+
+# R
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+
+# OS
+.DS_Store
+
+# Figures are embedded in the rendered site; no need to commit the loose PNGs.
+results/figures/
+# Commit results/dds.rds and de_hypoxia_vs_normoxia.csv: the website pages load
+# them, and committing keeps a fresh `quarto render` independent of page order.
+
+# Conda
+*.conda
+*.pyc
+__pycache__/

@@ -1,0 +1,101 @@
+---
+title: "5 · Enrichment"
+---
+
+A list of significant genes is a means, not an end. Functional enrichment asks: **what biological processes are over-represented among the genes that changed?** For a hypoxia experiment, we expect terms like *response to hypoxia*, *glycolysis*, and *angiogenesis*.
+
+```{r setup}
+#| include: false
+knitr::opts_chunk$set(echo = TRUE, fig.align = "center")
+library(dplyr); library(readr)
+res_df <- read_csv("results/de_hypoxia_vs_normoxia.csv", show_col_types = FALSE)
+```
+
+## Pick the gene sets
+
+We need two lists: the **significant** up-regulated genes, and the **universe** of all tested genes (so enrichment is measured against the right background). GENCODE IDs carry a version suffix (`.17`) that the annotation database doesn't use, so we strip it.
+
+::: {.claude-prompt}
+[Try this prompt]{.prompt-label}
+
+[From the DESeq2 results, take genes with padj < 0.05 and log2FoldChange > 1 as the up-regulated set, and all tested genes as the universe. Strip the Ensembl version suffix from the IDs.]{.prompt-text}
+:::
+
+```{r genesets}
+strip_version <- function(x) sub("\\.\\d+$", "", x)
+
+up <- res_df |>
+  filter(!is.na(padj), padj < 0.05, log2FoldChange > 1) |>
+  pull(gene_id) |>
+  strip_version()
+
+universe <- res_df |>
+  filter(!is.na(padj)) |>
+  pull(gene_id) |>
+  strip_version()
+
+length(up)
+```
+
+## GO over-representation with clusterProfiler
+
+::: {.claude-prompt}
+[Try this prompt]{.prompt-label}
+
+[Run a GO Biological Process over-representation test on the up-regulated genes with clusterProfiler, using `org.Hs.eg.db`, Ensembl IDs, and the universe as background. Show the top terms.]{.prompt-text}
+:::
+
+```{r enrichgo}
+#| message: false
+#| warning: false
+library(clusterProfiler)
+library(org.Hs.eg.db)
+
+ego <- enrichGO(
+  gene          = up,
+  universe      = universe,
+  OrgDb         = org.Hs.eg.db,
+  keyType       = "ENSEMBL",
+  ont           = "BP",
+  pAdjustMethod = "BH",
+  pvalueCutoff  = 0.05,
+  qvalueCutoff  = 0.10,
+  readable      = TRUE
+)
+
+as.data.frame(ego) |>
+  dplyr::select(Description, GeneRatio, p.adjust, Count) |>  # AnnotationDbi masks select()
+  head(15)
+```
+
+## Visualize the enriched terms
+
+::: {.claude-prompt}
+[Try this prompt]{.prompt-label}
+
+[Make a dotplot of the top enriched GO terms.]{.prompt-text}
+:::
+
+```{r dotplot}
+#| fig-height: 6
+if (!is.null(ego) && nrow(as.data.frame(ego)) > 0) {
+  dotplot(ego, showCategory = 15) +
+    ggplot2::labs(title = "GO Biological Process — up in hypoxia")
+} else {
+  message("No enriched terms at the chosen thresholds on this subset.")
+}
+```
+
+::: {.callout-note}
+With a subset of reads and only two replicates per group, the exact terms vary, but the **hypoxia / metabolic** signal should dominate. On the full dataset the enrichment is sharper.
+:::
+
+## Where to go further
+
+Ask Claude Code to extend the analysis:
+
+- **GSEA** instead of over-representation — `clusterProfiler::gseGO()` on a ranked gene list (uses every gene, no hard cutoff).
+- **Pathways** — KEGG (`enrichKEGG`) or Reactome (`ReactomePA::enrichPathway`).
+- **MSigDB Hallmark** gene sets via `msigdbr` + `enricher` — the *HALLMARK_HYPOXIA* set is the obvious target here.
+
+→ Recap and how to use this on your own data — **[6 · Wrap-up](06-wrap-up.qmd)**.

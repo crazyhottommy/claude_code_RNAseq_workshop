@@ -1,0 +1,78 @@
+---
+title: "Setup"
+---
+
+Five minutes of setup and you're ready for the whole workshop. If you fall behind on any install, you can still follow along — every result is shown on this site.
+
+## 1. Install Claude Code
+
+Claude Code is Anthropic's agentic coding tool that runs in your terminal.
+
+```bash
+# macOS / Linux
+curl -fsSL https://claude.com/install.sh | bash
+```
+
+Then start it and sign in:
+
+```bash
+claude
+```
+
+See the [official docs](https://docs.claude.com/en/docs/claude-code/overview) for other install methods (npm, IDE extensions, the desktop app).
+
+## 2. Get the workshop repo
+
+```bash
+git clone https://github.com/crazyhottommy/claude_code_RNAseq_workshop.git
+cd claude_code_RNAseq_workshop
+```
+
+The repo already contains the **salmon `quant.sf` files** for all four samples in `data/salmon/`, so you can start analyzing immediately — no large downloads.
+
+```
+data/
+├── salmon/
+│   ├── Normoxia_sgCTRL_1/quant.sf
+│   ├── Normoxia_sgCTRL_2/quant.sf
+│   ├── Hypoxia_sgCTRL_1/quant.sf
+│   └── Hypoxia_sgCTRL_2/quant.sf
+├── samples.csv          # which sample is which condition
+├── tx2gene.csv          # transcript → gene
+└── gene_name_map.csv    # gene id → gene symbol
+```
+
+## 3. Install the R / Bioconductor packages
+
+The downstream analysis is in R. Install everything with the helper script:
+
+```bash
+Rscript install.R
+```
+
+This installs **tximport, DESeq2, clusterProfiler, org.Hs.eg.db** and the tidyverse pieces (dplyr, readr, ggplot2, pheatmap). Don't have R? Get it from [r-project.org](https://www.r-project.org/) (we use R ≥ 4.3).
+
+## 4. (Optional) tools for preprocessing
+
+Only needed if you want to regenerate `quant.sf` from raw FASTQ (covered in [Preprocessing](02-preprocessing.qmd)). Not required for the live session.
+
+```bash
+conda env create -f environment.yml   # installs salmon, sra-tools, fastq-dl
+conda activate rnaseq
+```
+
+## 5. Launch Claude Code in the repo
+
+```bash
+claude
+```
+
+Because the repo ships a [`CLAUDE.md`](https://github.com/crazyhottommy/claude_code_RNAseq_workshop/blob/main/CLAUDE.md), Claude Code already knows the dataset, the file layout, and the analysis goal. Try opening with:
+
+::: {.claude-prompt}
+[Try this prompt]{.prompt-label}
+
+[Read CLAUDE.md and the files in `data/`, then tell me what this dataset is and what analysis we're about to do.]{.prompt-text}
+:::
+
+When it gives a sensible summary, you're set. → On to **[1 · The data](01-the-data.qmd)**.
