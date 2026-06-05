@@ -254,6 +254,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul>
   <li><a href="#the-pipeline-at-a-glance" id="toc-the-pipeline-at-a-glance" class="nav-link active" data-scroll-target="#the-pipeline-at-a-glance">The pipeline at a glance</a></li>
+  <li><a href="#sec-hardware" id="toc-sec-hardware" class="nav-link" data-scroll-target="#sec-hardware">Hardware requirements &amp; timing</a></li>
   <li><a href="#step-1-download-fastq" id="toc-step-1-download-fastq" class="nav-link" data-scroll-target="#step-1-download-fastq">Step 1 — Download FASTQ</a></li>
   <li><a href="#step-2-build-the-salmon-index" id="toc-step-2-build-the-salmon-index" class="nav-link" data-scroll-target="#step-2-build-the-salmon-index">Step 2 — Build the salmon index</a></li>
   <li><a href="#step-3-quantify" id="toc-step-3-quantify" class="nav-link" data-scroll-target="#step-3-quantify">Step 3 — Quantify</a></li>
@@ -302,6 +303,116 @@ Note
 <pre><code>FASTQ (GEO/SRA)  ──►  salmon index (GENCODE v45)  ──►  salmon quant  ──►  quant.sf
    script 01              script 02                      script 03</code></pre>
 </section>
+<section id="sec-hardware" class="level2">
+<h2 class="anchored" data-anchor-id="sec-hardware">Hardware requirements &amp; timing</h2>
+<p>You don’t need a cluster. Everything here was built on a <strong>laptop</strong>.</p>
+<p><strong>Minimum / recommended hardware</strong></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 23%">
+<col style="width: 33%">
+<col style="width: 17%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Resource</th>
+<th>Minimum</th>
+<th>Recommended</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>CPU</td>
+<td>2 cores</td>
+<td>4–8 cores</td>
+<td>salmon scales with threads (<code>-p</code>)</td>
+</tr>
+<tr class="even">
+<td>RAM</td>
+<td>8 GB</td>
+<td>16 GB</td>
+<td>the human transcriptome index peaks at a few GB</td>
+</tr>
+<tr class="odd">
+<td>Free disk</td>
+<td>~5 GB (subset)</td>
+<td>~30 GB (full data)</td>
+<td>index ≈ 0.4 GB; FASTQ dominates</td>
+</tr>
+<tr class="even">
+<td>OS</td>
+<td>macOS / Linux</td>
+<td>—</td>
+<td>salmon + sra-tools via conda</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Time actually measured</strong> building this repo’s data on an <strong>Apple Silicon Mac (M-series), 18 GB RAM, salmon run with 6 threads</strong>, using the <code>SUBSET</code> mode (5 million reads per sample):</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 19%">
+<col style="width: 19%">
+<col style="width: 41%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Step</th>
+<th>What</th>
+<th>Time</th>
+<th>Output size</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Download references</td>
+<td>GENCODE v45 transcripts (79 MB) + GTF (47 MB)</td>
+<td>~1–2 min</td>
+<td>126 MB</td>
+</tr>
+<tr class="even">
+<td><code>02</code> build salmon index</td>
+<td><code>salmon index</code> (GENCODE v45)</td>
+<td><strong>~1.5 min</strong></td>
+<td>364 MB</td>
+</tr>
+<tr class="odd">
+<td><code>01</code> download FASTQ (subset)</td>
+<td>4 × 5M single-end reads, streamed from ENA</td>
+<td>~10–20 min†</td>
+<td>~0.9 GB</td>
+</tr>
+<tr class="even">
+<td><code>03</code> salmon quant</td>
+<td>4 samples, ~1 min each</td>
+<td><strong>~4 min</strong></td>
+<td>~44 MB (4 × <code>quant.sf</code>)</td>
+</tr>
+<tr class="odd">
+<td><code>make_tx2gene.R</code></td>
+<td>parse GTF → tx2gene + gene map</td>
+<td>~2–3 min</td>
+<td>~10 MB</td>
+</tr>
+</tbody>
+</table>
+<p>† network-bound — the dominant and least predictable step. The compute itself (index + quant) is <strong>under ~6 minutes total</strong>.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Full-depth data costs more
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The real runs have <strong>22–30 M reads</strong> each (not 5 M). Expect FASTQ downloads of several GB per sample and salmon quant of ~3–5 min per sample. The index build and RAM needs are unchanged. This is exactly why we <strong>don’t run preprocessing live</strong> — and why the repo ships finished <code>quant.sf</code>.</p>
+</div>
+</div>
+</section>
 <section id="step-1-download-fastq" class="level2">
 <h2 class="anchored" data-anchor-id="step-1-download-fastq">Step 1 — Download FASTQ</h2>
 <p>The blog this workshop is based on uses <a href="https://github.com/rpetit3/fastq-dl"><code>fastq-dl</code></a> to pull FASTQ from ENA by SRA experiment accession:</p>
@@ -321,7 +432,7 @@ Note
 <li><code>-k 31</code> — k-mer size; 31 is standard for reads ≥ 75 bp.</li>
 <li><code>--gencode</code> — strips the <code>|</code>-delimited junk from GENCODE FASTA headers so transcript IDs stay clean.</li>
 </ul>
-<p>This is the memory-heavy step (a few GB of RAM, ~10–20 min). See <code>scripts/02_build_salmon_index.sh</code>.</p>
+<p>This is the RAM-heaviest step (the index peaks at a few GB), but it’s quick: <strong>~1.5 min on 6 threads</strong> here, a few minutes on a 2-core laptop. The finished index is ~364 MB. See <code>scripts/02_build_salmon_index.sh</code> and the <a href="#sec-hardware">timing table</a>.</p>
 </section>
 <section id="step-3-quantify" class="level2">
 <h2 class="anchored" data-anchor-id="step-3-quantify">Step 3 — Quantify</h2>
@@ -335,7 +446,7 @@ Note
 <li><code>--validateMappings</code> — selective alignment, more accurate.</li>
 <li><code>--gcBias</code> / <code>--seqBias</code> — correct common technical biases.</li>
 </ul>
-<p>Each run writes a <code>quant.sf</code> (plus logs). The original study reported <strong>91–93% mapping rates</strong> — a healthy sign. See <code>scripts/03_salmon_quant.sh</code>.</p>
+<p>Each run writes a <code>quant.sf</code> (plus logs) in <strong>~1 minute</strong> per sample (5M reads, 6 threads). Our subset runs hit <strong>90–92% mapping rates</strong> — right in line with the <strong>91–93%</strong> the original study reported. See <code>scripts/03_salmon_quant.sh</code>.</p>
 </section>
 <section id="step-4-build-the-transcriptgene-map" class="level2">
 <h2 class="anchored" data-anchor-id="step-4-build-the-transcriptgene-map">Step 4 — Build the transcript→gene map</h2>

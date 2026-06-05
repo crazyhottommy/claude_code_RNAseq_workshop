@@ -253,6 +253,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Only needed if you want to regenerate <code>quant.sf</code> from raw FASTQ (covered in <a href="./02-preprocessing.html">Preprocessing</a>). Not required for the live session.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> env create <span class="at">-f</span> environment.yml   <span class="co"># installs salmon, sra-tools, fastq-dl</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> activate rnaseq</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>A laptop is plenty: <strong>8 GB RAM minimum (16 GB comfortable), 4+ cores, ~5–30 GB free disk.</strong> The compute (index + quant) runs in under ~6 minutes for the read subset; see the full <a href="./02-preprocessing.html#sec-hardware">hardware &amp; timing table</a>.</p>
 </section>
 <section id="launch-claude-code-in-the-repo" class="level2">
 <h2 class="anchored" data-anchor-id="launch-claude-code-in-the-repo">5. Launch Claude Code in the repo</h2>

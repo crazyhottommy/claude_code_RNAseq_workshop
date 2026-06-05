@@ -38,6 +38,8 @@ Rscript scripts/analysis.R   # -> results/de_hypoxia_vs_normoxia.csv + results/f
 
 ## Regenerate the data from raw FASTQ (optional)
 
+**Requirements:** macOS/Linux, 8 GB RAM minimum (16 GB recommended), 4+ cores, ~5 GB free disk for the read subset (~30 GB for full-depth data). Measured on an Apple Silicon Mac (18 GB RAM, 6 threads): salmon index **~1.5 min**, quant **~1 min/sample**; downloads are the slow part (network-bound). Full timing table is on the [Preprocessing](https://crazyhottommy.github.io/claude_code_RNAseq_workshop/02-preprocessing.html#sec-hardware) page.
+
 ```bash
 conda env create -f environment.yml && conda activate rnaseq
 MODE=SUBSET bash scripts/01_download_fastq.sh   # fast subset (how this repo's data was made)

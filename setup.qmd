@@ -61,6 +61,8 @@ conda env create -f environment.yml   # installs salmon, sra-tools, fastq-dl
 conda activate rnaseq
 ```
 
+A laptop is plenty: **8 GB RAM minimum (16 GB comfortable), 4+ cores, ~5–30 GB free disk.** The compute (index + quant) runs in under ~6 minutes for the read subset; see the full [hardware & timing table](02-preprocessing.qmd#sec-hardware).
+
 ## 5. Launch Claude Code in the repo
 
 ```bash

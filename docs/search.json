@@ -32,7 +32,7 @@
     "href": "setup.html#optional-tools-for-preprocessing",
     "title": "Setup",
     "section": "4. (Optional) tools for preprocessing",
-    "text": "4. (Optional) tools for preprocessing\nOnly needed if you want to regenerate quant.sf from raw FASTQ (covered in Preprocessing). Not required for the live session.\nconda env create -f environment.yml   # installs salmon, sra-tools, fastq-dl\nconda activate rnaseq"
+    "text": "4. (Optional) tools for preprocessing\nOnly needed if you want to regenerate quant.sf from raw FASTQ (covered in Preprocessing). Not required for the live session.\nconda env create -f environment.yml   # installs salmon, sra-tools, fastq-dl\nconda activate rnaseq\nA laptop is plenty: 8 GB RAM minimum (16 GB comfortable), 4+ cores, ~5–30 GB free disk. The compute (index + quant) runs in under ~6 minutes for the read subset; see the full hardware & timing table."
   },
   {
     "objectID": "setup.html#launch-claude-code-in-the-repo",
@@ -196,6 +196,17 @@
     ]
   },
   {
+    "objectID": "02-preprocessing.html#sec-hardware",
+    "href": "02-preprocessing.html#sec-hardware",
+    "title": "2 · Preprocessing",
+    "section": "Hardware requirements & timing",
+    "text": "Hardware requirements & timing\nYou don’t need a cluster. Everything here was built on a laptop.\nMinimum / recommended hardware\n\n\n\n\n\n\n\n\n\nResource\nMinimum\nRecommended\nNotes\n\n\n\n\nCPU\n2 cores\n4–8 cores\nsalmon scales with threads (-p)\n\n\nRAM\n8 GB\n16 GB\nthe human transcriptome index peaks at a few GB\n\n\nFree disk\n~5 GB (subset)\n~30 GB (full data)\nindex ≈ 0.4 GB; FASTQ dominates\n\n\nOS\nmacOS / Linux\n—\nsalmon + sra-tools via conda\n\n\n\nTime actually measured building this repo’s data on an Apple Silicon Mac (M-series), 18 GB RAM, salmon run with 6 threads, using the SUBSET mode (5 million reads per sample):\n\n\n\n\n\n\n\n\n\nStep\nWhat\nTime\nOutput size\n\n\n\n\nDownload references\nGENCODE v45 transcripts (79 MB) + GTF (47 MB)\n~1–2 min\n126 MB\n\n\n02 build salmon index\nsalmon index (GENCODE v45)\n~1.5 min\n364 MB\n\n\n01 download FASTQ (subset)\n4 × 5M single-end reads, streamed from ENA\n~10–20 min†\n~0.9 GB\n\n\n03 salmon quant\n4 samples, ~1 min each\n~4 min\n~44 MB (4 × quant.sf)\n\n\nmake_tx2gene.R\nparse GTF → tx2gene + gene map\n~2–3 min\n~10 MB\n\n\n\n† network-bound — the dominant and least predictable step. The compute itself (index + quant) is under ~6 minutes total.\n\n\n\n\n\n\nFull-depth data costs more\n\n\n\nThe real runs have 22–30 M reads each (not 5 M). Expect FASTQ downloads of several GB per sample and salmon quant of ~3–5 min per sample. The index build and RAM needs are unchanged. This is exactly why we don’t run preprocessing live — and why the repo ships finished quant.sf.",
+    "crumbs": [
+      "Walkthrough",
+      "2 · Preprocessing"
+    ]
+  },
+  {
     "objectID": "02-preprocessing.html#step-1-download-fastq",
     "href": "02-preprocessing.html#step-1-download-fastq",
     "title": "2 · Preprocessing",
@@ -211,7 +222,7 @@
     "href": "02-preprocessing.html#step-2-build-the-salmon-index",
     "title": "2 · Preprocessing",
     "section": "Step 2 — Build the salmon index",
-    "text": "Step 2 — Build the salmon index\nSalmon maps reads against a transcriptome, so we index the GENCODE v45 transcript FASTA:\nwget https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_45/gencode.v45.transcripts.fa.gz\nsalmon index -t gencode.v45.transcripts.fa.gz -i gencode.v45_human_index -k 31 --gencode\n\n-k 31 — k-mer size; 31 is standard for reads ≥ 75 bp.\n--gencode — strips the |-delimited junk from GENCODE FASTA headers so transcript IDs stay clean.\n\nThis is the memory-heavy step (a few GB of RAM, ~10–20 min). See scripts/02_build_salmon_index.sh.",
+    "text": "Step 2 — Build the salmon index\nSalmon maps reads against a transcriptome, so we index the GENCODE v45 transcript FASTA:\nwget https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_45/gencode.v45.transcripts.fa.gz\nsalmon index -t gencode.v45.transcripts.fa.gz -i gencode.v45_human_index -k 31 --gencode\n\n-k 31 — k-mer size; 31 is standard for reads ≥ 75 bp.\n--gencode — strips the |-delimited junk from GENCODE FASTA headers so transcript IDs stay clean.\n\nThis is the RAM-heaviest step (the index peaks at a few GB), but it’s quick: ~1.5 min on 6 threads here, a few minutes on a 2-core laptop. The finished index is ~364 MB. See scripts/02_build_salmon_index.sh and the timing table.",
     "crumbs": [
       "Walkthrough",
       "2 · Preprocessing"
@@ -222,7 +233,7 @@
     "href": "02-preprocessing.html#step-3-quantify",
     "title": "2 · Preprocessing",
     "section": "Step 3 — Quantify",
-    "text": "Step 3 — Quantify\nFor single-end reads, feed the FASTQ with -r (paired-end would use -1/-2):\nsalmon quant -i gencode.v45_human_index -l A \\\n  -r fastq/Hypoxia_sgCTRL_1.fastq.gz \\\n  -o data/salmon/Hypoxia_sgCTRL_1 \\\n  --validateMappings --gcBias --seqBias\n\n-l A — auto-detect the library type.\n--validateMappings — selective alignment, more accurate.\n--gcBias / --seqBias — correct common technical biases.\n\nEach run writes a quant.sf (plus logs). The original study reported 91–93% mapping rates — a healthy sign. See scripts/03_salmon_quant.sh.",
+    "text": "Step 3 — Quantify\nFor single-end reads, feed the FASTQ with -r (paired-end would use -1/-2):\nsalmon quant -i gencode.v45_human_index -l A \\\n  -r fastq/Hypoxia_sgCTRL_1.fastq.gz \\\n  -o data/salmon/Hypoxia_sgCTRL_1 \\\n  --validateMappings --gcBias --seqBias\n\n-l A — auto-detect the library type.\n--validateMappings — selective alignment, more accurate.\n--gcBias / --seqBias — correct common technical biases.\n\nEach run writes a quant.sf (plus logs) in ~1 minute per sample (5M reads, 6 threads). Our subset runs hit 90–92% mapping rates — right in line with the 91–93% the original study reported. See scripts/03_salmon_quant.sh.",
     "crumbs": [
       "Walkthrough",
       "2 · Preprocessing"

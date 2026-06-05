@@ -15,6 +15,36 @@ FASTQ (GEO/SRA)  ──►  salmon index (GENCODE v45)  ──►  salmon quant 
    script 01              script 02                      script 03
 ```
 
+## Hardware requirements & timing {#sec-hardware}
+
+You don't need a cluster. Everything here was built on a **laptop**.
+
+**Minimum / recommended hardware**
+
+| Resource | Minimum | Recommended | Notes |
+|----------|---------|-------------|-------|
+| CPU | 2 cores | 4–8 cores | salmon scales with threads (`-p`) |
+| RAM | 8 GB | 16 GB | the human transcriptome index peaks at a few GB |
+| Free disk | ~5 GB (subset) | ~30 GB (full data) | index ≈ 0.4 GB; FASTQ dominates |
+| OS | macOS / Linux | — | salmon + sra-tools via conda |
+
+**Time actually measured** building this repo's data on an **Apple Silicon Mac (M-series), 18 GB RAM, salmon run with 6 threads**, using the `SUBSET` mode (5 million reads per sample):
+
+| Step | What | Time | Output size |
+|------|------|------|-------------|
+| Download references | GENCODE v45 transcripts (79 MB) + GTF (47 MB) | ~1–2 min | 126 MB |
+| `02` build salmon index | `salmon index` (GENCODE v45) | **~1.5 min** | 364 MB |
+| `01` download FASTQ (subset) | 4 × 5M single-end reads, streamed from ENA | ~10–20 min† | ~0.9 GB |
+| `03` salmon quant | 4 samples, ~1 min each | **~4 min** | ~44 MB (4 × `quant.sf`) |
+| `make_tx2gene.R` | parse GTF → tx2gene + gene map | ~2–3 min | ~10 MB |
+
+† network-bound — the dominant and least predictable step. The compute itself (index + quant) is **under ~6 minutes total**.
+
+::: {.callout-tip}
+## Full-depth data costs more
+The real runs have **22–30 M reads** each (not 5 M). Expect FASTQ downloads of several GB per sample and salmon quant of ~3–5 min per sample. The index build and RAM needs are unchanged. This is exactly why we **don't run preprocessing live** — and why the repo ships finished `quant.sf`.
+:::
+
 ## Step 1 — Download FASTQ
 
 The blog this workshop is based on uses [`fastq-dl`](https://github.com/rpetit3/fastq-dl) to pull FASTQ from ENA by SRA experiment accession:
@@ -43,7 +73,7 @@ salmon index -t gencode.v45.transcripts.fa.gz -i gencode.v45_human_index -k 31 -
 - `-k 31` — k-mer size; 31 is standard for reads ≥ 75 bp.
 - `--gencode` — strips the `|`-delimited junk from GENCODE FASTA headers so transcript IDs stay clean.
 
-This is the memory-heavy step (a few GB of RAM, ~10–20 min). See `scripts/02_build_salmon_index.sh`.
+This is the RAM-heaviest step (the index peaks at a few GB), but it's quick: **~1.5 min on 6 threads** here, a few minutes on a 2-core laptop. The finished index is ~364 MB. See `scripts/02_build_salmon_index.sh` and the [timing table](#sec-hardware).
 
 ## Step 3 — Quantify
 
@@ -60,7 +90,7 @@ salmon quant -i gencode.v45_human_index -l A \
 - `--validateMappings` — selective alignment, more accurate.
 - `--gcBias` / `--seqBias` — correct common technical biases.
 
-Each run writes a `quant.sf` (plus logs). The original study reported **91–93% mapping rates** — a healthy sign. See `scripts/03_salmon_quant.sh`.
+Each run writes a `quant.sf` (plus logs) in **~1 minute** per sample (5M reads, 6 threads). Our subset runs hit **90–92% mapping rates** — right in line with the **91–93%** the original study reported. See `scripts/03_salmon_quant.sh`.
 
 ## Step 4 — Build the transcript→gene map
 
